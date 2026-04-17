@@ -1,18 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  Menu,
-  ShoppingCart,
-  Search,
-  Heart,
-  Star,
-  ChevronUp,
-} from "lucide-react";
-import { FaFacebook, FaFacebookSquare } from "react-icons/fa";
-import { FaInstagram } from "react-icons/fa";
-import { FaYoutube } from "react-icons/fa";
+import { Menu, ShoppingCart, Search, Heart, Star } from "lucide-react";
+import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 // --- Reusable Promo Card Component ---
 const PromoCard = ({ title, description, image, bgText, onClick }: any) => (
@@ -61,8 +53,10 @@ const ProductCard = ({
   isExclusive,
   rating,
   vertical = false,
+  onClick,
 }: any) => (
   <div
+    onClick={onClick}
     className={`flex flex-col group cursor-pointer ${
       vertical ? "w-full mb-8" : "flex-none w-[165px]"
     }`}
@@ -73,7 +67,12 @@ const ProductCard = ({
         alt={title}
         className="max-w-full max-h-full object-contain mix-blend-multiply"
       />
-      <button className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm border border-gray-100">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm border border-gray-100"
+      >
         <Heart className="w-4 h-4 text-[#f47521]" />
       </button>
       <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
@@ -105,7 +104,13 @@ const ProductCard = ({
           </div>
         )}
       </div>
-      <Button className="w-full bg-black hover:bg-zinc-800 text-white font-black text-[11px] py-4 rounded-full uppercase tracking-tight h-auto">
+      <Button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
+        className="w-full bg-black hover:bg-zinc-800 text-white font-black text-[11px] py-4 rounded-full uppercase tracking-tight h-auto"
+      >
         Add to Cart
       </Button>
     </div>
@@ -113,12 +118,14 @@ const ProductCard = ({
 );
 
 const AnimeStore = () => {
+  const router = useRouter();
   const [items, setItems] = useState([
     {
       id: 1,
       title: "Violet Evergarden - 1/7 Scale Figure",
       price: "210.99",
-      image: "https://m.media-amazon.com/images/I/61NfTByNVAL._AC_UX679_.jpg",
+      image:
+        "https://images.weserv.nl/?url=m.media-amazon.com/images/I/61NfTByNVAL._AC_UX679_.jpg",
       isExclusive: true,
       rating: "4.1",
     },
@@ -156,9 +163,12 @@ const AnimeStore = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const goToCheckout = () => {
+    router.push("/checkout");
+  };
+
   return (
     <div className="flex justify-center bg-[#141519] min-h-screen">
-      {/* Container forced to screen width to prevent mobile horizontal scroll */}
       <div className="w-full max-w-[100vw] sm:max-w-[430px] bg-white min-h-screen shadow-2xl flex flex-col overflow-x-hidden relative">
         {/* TOP NAV */}
         <div className="bg-[#141519] text-white py-[10px] text-center border-b border-white/10">
@@ -234,6 +244,7 @@ const AnimeStore = () => {
           </div>
           <div className="flex gap-4 overflow-x-auto no-scrollbar px-5 pb-4">
             <ProductCard
+              onClick={goToCheckout}
               image="https://m.media-amazon.com/images/I/51r+R2W6fQL._AC_UX679_.jpg"
               title="One Piece - Devil Fruit Graphic Crew Sweatshirt"
               price="54.99"
@@ -241,12 +252,14 @@ const AnimeStore = () => {
               isExclusive
             />
             <ProductCard
+              onClick={goToCheckout}
               image="https://m.media-amazon.com/images/I/61NfTByNVAL._AC_UX679_.jpg"
               title="One Piece - Monkey D. Luffy Straw Hat Crew T-Shirt"
               price="29.99"
               isExclusive
             />
             <ProductCard
+              onClick={goToCheckout}
               image="https://m.media-amazon.com/images/I/61M6YhOat5L._AC_SL1200_.jpg"
               title="One Piece - Monkey D. Luffy Funko POP!"
               price="14.99"
@@ -257,12 +270,14 @@ const AnimeStore = () => {
         {/* PROMO CARDS */}
         <section className="bg-white pb-6">
           <PromoCard
+            onClick={goToCheckout}
             title="Shop Fresh Finds"
             description="Keep your collection fresh with shiny, new pre-orders."
             bgText="Fresh"
             image="https://www.freeiconspng.com/uploads/anime-girl-png-2.png"
           />
           <PromoCard
+            onClick={goToCheckout}
             title="Shop Figures"
             description="Discover new anime figures and grow your collection."
             bgText="Figures"
@@ -286,6 +301,7 @@ const AnimeStore = () => {
                 isExclusive={item.isExclusive}
                 isPreOrder={item.isPreOrder}
                 rating={item.rating}
+                onClick={goToCheckout}
               />
             ))}
           </div>
@@ -408,29 +424,6 @@ const AnimeStore = () => {
                 <li>Help Center</li>
               </ul>
             </div>
-            {/* <div>
-              <h4 className="font-black uppercase text-[#f47521] text-xs mb-4">
-                About
-              </h4>
-              <ul className="space-y-2 text-[11px] font-bold text-gray-300 uppercase">
-                <li>About Us</li>
-                <li>Ad Choices</li>
-                <li>Cookie Consent</li>
-                <li>Privacy Policy</li>
-                <li>Terms of Service</li>
-              </ul>
-            </div> */}
-            {/* <div>
-              <h4 className="font-black uppercase text-[#f47521] text-xs mb-4">
-                Helpful Links
-              </h4>
-              <ul className="space-y-2 text-[11px] font-bold text-gray-300 uppercase">
-                <li>Sign In</li>
-                <li>Become a Member</li>
-                <li>Gift a Membership</li>
-                <li>Stream on Crunchyroll</li>
-              </ul>
-            </div> */}
           </div>
 
           <div className="border-t border-white/10 pt-6 flex flex-col items-center gap-4">
@@ -440,16 +433,6 @@ const AnimeStore = () => {
               <span>Copyright © 2026 Minilagmerch, LLC</span>
             </div>
           </div>
-
-          {/* BACK TO TOP */}
-          {/* <div className="absolute right-4 bottom-[200px] flex flex-col items-center gap-1 opacity-80">
-            <div className="bg-white p-1 rounded-sm">
-              <ChevronUp className="w-4 h-4 text-black" />
-            </div>
-            <span className="text-[10px] font-black text-black uppercase bg-white/90 px-1">
-              Top
-            </span>
-          </div> */}
         </footer>
       </div>
 
