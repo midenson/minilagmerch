@@ -1,10 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Menu, ShoppingCart, Search, Heart, Star } from "lucide-react";
+import { Menu, ShoppingCart, Search, Heart, Star, Loader2 } from "lucide-react";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 // --- Reusable Promo Card Component ---
 const PromoCard = ({ title, description, image, bgText, onClick }: any) => (
@@ -65,7 +72,7 @@ const ProductCard = ({
       <img
         src={image}
         alt={title}
-        className="max-w-full max-h-full object-contain mix-blend-multiply"
+        className="max-w-full max-h-full object-contain mix-blend-multiply transition-transform group-hover:scale-110"
       />
       <button
         onClick={(e) => {
@@ -94,7 +101,9 @@ const ProductCard = ({
         {title}
       </h3>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[14px] font-black text-black">${price}</p>
+        <p className="text-[14px] font-black text-black">
+          ₦{Number(price).toLocaleString()}
+        </p>
         {rating && (
           <div className="flex items-center gap-0.5">
             <Star className="w-3 h-3 fill-[#f47521] text-[#f47521]" />
@@ -119,53 +128,68 @@ const ProductCard = ({
 
 const AnimeStore = () => {
   const router = useRouter();
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      title: "Violet Evergarden - 1/7 Scale Figure",
-      price: "210.99",
-      image:
-        "https://images.weserv.nl/?url=m.media-amazon.com/images/I/61NfTByNVAL._AC_UX679_.jpg",
-      isExclusive: true,
-      rating: "4.1",
-    },
-    {
-      id: 2,
-      title: "The Apothecary Diaries - Blu-ray Steelbook",
-      price: "79.98",
-      image: "https://m.media-amazon.com/images/I/51r+R2W6fQL._AC_UX679_.jpg",
-      isPreOrder: true,
-    },
-    {
-      id: 3,
-      title: "Chainsaw Man - Power Noodle Stopper Figure",
-      price: "24.99",
-      image: "https://m.media-amazon.com/images/I/61M6YhOat5L._AC_SL1200_.jpg",
-      rating: "5.0",
-    },
-  ]);
+  const [items, setItems] = useState<any[]>([]);
+  const [featuredItems, setFeaturedItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 500
-      ) {
-        setItems((prev) =>
-          [
-            ...prev,
-            ...prev.map((item) => ({ ...item, id: Math.random() })),
-          ].slice(0, 20)
-        );
+    const fetchAllData = async () => {
+      setLoading(true);
+
+      // Fetch products for "What's New" (Infinite Section)
+      const { data: allProducts, error: allErr } = await supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      // Fetch specific products for horizontal scroll (e.g., Streetwear category)
+      const { data: featured, error: featErr } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", "Streetwear")
+        .limit(5);
+
+      if (allErr || featErr) {
+        console.error("Supabase Error:", allErr || featErr);
+      } else {
+        const format = (list: any[]) =>
+          list.map((p) => ({
+            id: p.id,
+            title: p.name,
+            price: p.price,
+            image:
+              p.images && p.images.length > 0
+                ? p.images[0]
+                : "https://via.placeholder.com/400",
+            isExclusive: p.category === "Streetwear", // Logical flags based on your categories
+            isPreOrder: p.name.toLowerCase().includes("pre-order"),
+            rating: "5.0",
+          }));
+
+        setItems(format(allProducts || []));
+        setFeaturedItems(format(featured || []));
       }
+      setLoading(false);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    fetchAllData();
   }, []);
 
-  const goToCheckout = () => {
-    router.push("/checkout");
+  const goToCheckout = (productId?: string) => {
+    if (productId) {
+      router.push(`/checkout?product_id=${productId}`);
+    } else {
+      router.push("/checkout");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#141519] text-white">
+        <Loader2 className="w-10 h-10 animate-spin text-[#f47521]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center bg-[#141519] min-h-screen">
@@ -173,7 +197,7 @@ const AnimeStore = () => {
         {/* TOP NAV */}
         <div className="bg-[#141519] text-white py-[10px] text-center border-b border-white/10">
           <p className="text-[11px] font-bold tracking-tight uppercase">
-            Free NIGERIAN Shipping on Orders ₦75000+
+            Free NIGERIAN Shipping on Orders ₦75,000+
           </p>
         </div>
 
@@ -195,7 +219,7 @@ const AnimeStore = () => {
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-sm">
-                <span className="text-lg">🇺🇸</span>
+                <span className="text-lg">🇳🇬</span>
                 <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-white" />
               </div>
               <ShoppingCart className="text-white w-6 h-6" />
@@ -229,11 +253,11 @@ const AnimeStore = () => {
           </div>
         </section>
 
-        {/* ONE PIECE HORIZONTAL */}
+        {/* HORIZONTAL SECTION (REAL DATA) */}
         <section className="py-8 bg-white">
           <div className="px-5 mb-6">
             <h2 className="text-black text-[32px] font-black leading-none uppercase tracking-tighter mb-1">
-              Shop One Piece
+              Top Streetwear
             </h2>
             <a
               href="#"
@@ -243,124 +267,57 @@ const AnimeStore = () => {
             </a>
           </div>
           <div className="flex gap-4 overflow-x-auto no-scrollbar px-5 pb-4">
-            <ProductCard
-              onClick={goToCheckout}
-              image="https://m.media-amazon.com/images/I/51r+R2W6fQL._AC_UX679_.jpg"
-              title="One Piece - Devil Fruit Graphic Crew Sweatshirt"
-              price="54.99"
-              isPreOrder
-              isExclusive
-            />
-            <ProductCard
-              onClick={goToCheckout}
-              image="https://m.media-amazon.com/images/I/61NfTByNVAL._AC_UX679_.jpg"
-              title="One Piece - Monkey D. Luffy Straw Hat Crew T-Shirt"
-              price="29.99"
-              isExclusive
-            />
-            <ProductCard
-              onClick={goToCheckout}
-              image="https://m.media-amazon.com/images/I/61M6YhOat5L._AC_SL1200_.jpg"
-              title="One Piece - Monkey D. Luffy Funko POP!"
-              price="14.99"
-            />
+            {items.map((item) => (
+              <ProductCard
+                key={item.id}
+                onClick={() => goToCheckout(item.id)}
+                image={item.image}
+                title={item.title}
+                price={item.price}
+                isPreOrder={item.isPreOrder}
+                isExclusive={item.isExclusive}
+              />
+            ))}
           </div>
         </section>
 
         {/* PROMO CARDS */}
         <section className="bg-white pb-6">
           <PromoCard
-            onClick={goToCheckout}
+            onClick={() => goToCheckout()}
             title="Shop Fresh Finds"
             description="Keep your collection fresh with shiny, new pre-orders."
             bgText="Fresh"
             image="https://www.freeiconspng.com/uploads/anime-girl-png-2.png"
           />
-          <PromoCard
-            onClick={goToCheckout}
-            title="Shop Figures"
-            description="Discover new anime figures and grow your collection."
-            bgText="Figures"
-            image="https://static.wikia.nocookie.net/bokunoheroacademia/images/b/b5/Izuku_Midoriya_Hero_Costume_Alpha_Action_Pose.png"
-          />
         </section>
 
-        {/* INFINITE PRODUCTS */}
+        {/* MAIN FEED (REAL DATA) */}
         <section className="bg-white px-5 pt-4 border-t border-gray-100">
           <h2 className="text-black text-[28px] font-black uppercase italic tracking-tighter mb-6">
             What's New in Anime
           </h2>
           <div className="grid grid-cols-2 gap-x-4">
-            {items.map((item, idx) => (
-              <ProductCard
-                key={`${item.id}-${idx}`}
-                vertical
-                image={item.image}
-                title={item.title}
-                price={item.price}
-                isExclusive={item.isExclusive}
-                isPreOrder={item.isPreOrder}
-                rating={item.rating}
-                onClick={goToCheckout}
-              />
-            ))}
-          </div>
-          <div className="py-10 text-center">
-            <div className="inline-block w-8 h-8 border-4 border-[#f47521] border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        </section>
-
-        {/* PREMIUM MEMBERSHIP SECTION */}
-        <section className="bg-[#fcfcfc] border-t border-gray-100 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="text-[#00a3e0]">
-              <Star className="w-8 h-8 fill-current" />
-            </div>
-            <h3 className="font-black text-2xl uppercase italic tracking-tighter">
-              Premium Members Save More
-            </h3>
-          </div>
-          <p className="text-sm text-gray-600 mb-6">
-            Premium Membership has its perks! Enjoy up to 15% off select
-            products, special offers, early access to sales, and free US
-            shipping.
-          </p>
-
-          <div className="space-y-4 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center font-black text-xs">
-                5%
+            {items.length > 0 ? (
+              items.map((item, idx) => (
+                <ProductCard
+                  key={`${item.id}-${idx}`}
+                  vertical
+                  image={item.image}
+                  title={item.title}
+                  price={item.price}
+                  isExclusive={item.isExclusive}
+                  isPreOrder={item.isPreOrder}
+                  rating={item.rating}
+                  onClick={() => goToCheckout(item.id)}
+                />
+              ))
+            ) : (
+              <div className="col-span-2 text-center text-gray-500 py-10 font-bold uppercase">
+                No products found
               </div>
-              <p className="font-bold text-sm uppercase italic">
-                Fans get 5% off select products.
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center font-black text-xs">
-                10%
-              </div>
-              <p className="font-bold text-sm uppercase italic">
-                Mega Fans get 10% off select products.
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center font-black text-xs">
-                15%
-              </div>
-              <p className="font-bold text-sm uppercase italic">
-                Ultimate Fans get 15% off select products.
-              </p>
-            </div>
+            )}
           </div>
-
-          <Button className="w-full bg-black text-white font-black uppercase py-7 rounded-md text-base">
-            Get Premium
-          </Button>
-          <p className="text-center text-[10px] text-gray-400 mt-4 uppercase font-bold">
-            Already joined Minilagmerch Premium?{" "}
-            <span className="text-black underline">Log in</span> to access your
-            benefits.
-          </p>
         </section>
 
         {/* FOOTER */}
@@ -374,16 +331,16 @@ const AnimeStore = () => {
             </p>
             <div className="flex gap-0">
               <Input
-                className="bg-white text-black rounded-none h-12 border-none"
+                className="bg-white text-black rounded-none h-12 border-none focus-visible:ring-0"
                 placeholder="Email Address"
               />
-              <Button className="bg-[#f47521] rounded-none h-12 px-6 uppercase font-black text-black">
+              <Button className="bg-[#f47521] rounded-none h-12 px-6 uppercase font-black text-black hover:bg-[#d6621a]">
                 Subscribe
               </Button>
             </div>
             <p className="text-[10px] text-gray-500 mt-3 leading-tight">
               By submitting your email address, you acknowledge that you have
-              read Minilagmerch's{" "}
+              read Minilagmerch&apos;s{" "}
               <span className="underline">Privacy Policy</span>. You can opt out
               at any time.
             </p>
@@ -397,7 +354,7 @@ const AnimeStore = () => {
 
           <div className="grid grid-cols-2 gap-y-10 mb-12">
             <div>
-              <h4 className="font-black uppercase text-[#f47521] text-xs mb-4">
+              <h4 className="font-black uppercase text-[#f47521] text-xs mb-4 tracking-widest">
                 Shop By Series
               </h4>
               <ul className="space-y-2 text-[11px] font-bold text-gray-300 uppercase">
@@ -407,19 +364,15 @@ const AnimeStore = () => {
                 <li>SPY x FAMILY</li>
                 <li>Jujutsu Kaisen</li>
                 <li>My Hero Academia</li>
-                <li>Solo Leveling</li>
-                <li>Berserk</li>
-                <li>Bleach</li>
                 <li className="text-white">Shop All Series</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-black uppercase text-[#f47521] text-xs mb-4">
+              <h4 className="font-black uppercase text-[#f47521] text-xs mb-4 tracking-widest">
                 Customer Service
               </h4>
               <ul className="space-y-2 text-[11px] font-bold text-gray-300 uppercase">
                 <li>Track Your Order</li>
-                <li>Sezzle</li>
                 <li>Shipping & Returns</li>
                 <li>Help Center</li>
               </ul>
@@ -427,7 +380,7 @@ const AnimeStore = () => {
           </div>
 
           <div className="border-t border-white/10 pt-6 flex flex-col items-center gap-4">
-            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400">
+            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
               <span>🌍 Change Region</span>
               <span className="mx-2 opacity-20">|</span>
               <span>Copyright © 2026 Minilagmerch, LLC</span>
