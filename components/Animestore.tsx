@@ -132,36 +132,50 @@ const AnimeStore = () => {
   const [featuredItems, setFeaturedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Replace your existing useEffect fetch logic with this:
+
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
 
-      // Fetch products for "What's New" (Infinite Section)
       const { data: allProducts, error: allErr } = await supabase
         .from("products")
         .select("*")
         .order("created_at", { ascending: false });
 
-      // Fetch specific products for horizontal scroll (e.g., Streetwear category)
       const { data: featured, error: featErr } = await supabase
         .from("products")
         .select("*")
         .eq("category", "Streetwear")
         .limit(5);
 
-      if (allErr || featErr) {
-        console.error("Supabase Error:", allErr || featErr);
+      const error = allErr || featErr;
+
+      if (error) {
+        // THE FIX: If the JWT is expired, try to refresh or just sign out
+        if (error.code === "PGRST303") {
+          console.warn("JWT Expired. Attempting to refresh session...");
+          const { error: refreshError } = await supabase.auth.refreshSession();
+
+          if (refreshError) {
+            // If refresh fails, the session is truly dead. Nuke it.
+            await supabase.auth.signOut();
+            router.refresh(); // Reloads the page state
+          } else {
+            // If refresh worked, retry the fetch once
+            fetchAllData();
+            return;
+          }
+        }
+        console.error("Supabase Error:", error);
       } else {
         const format = (list: any[]) =>
           list.map((p) => ({
             id: p.id,
             title: p.name,
             price: p.price,
-            image:
-              p.images && p.images.length > 0
-                ? p.images[0]
-                : "https://via.placeholder.com/400",
-            isExclusive: p.category === "Streetwear", // Logical flags based on your categories
+            image: p.images?.[0] || "https://via.placeholder.com/400",
+            isExclusive: p.category === "Streetwear",
             isPreOrder: p.name.toLowerCase().includes("pre-order"),
             rating: "5.0",
           }));
@@ -173,13 +187,31 @@ const AnimeStore = () => {
     };
 
     fetchAllData();
+  }, [router]);
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "TOKEN_REFRESHED") {
+        console.log("Session refreshed successfully");
+      }
+      if (event === "SIGNED_OUT") {
+        // Clear any local state if necessary
+        setItems([]);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const goToCheckout = (productId?: string) => {
     if (productId) {
-      router.push(`/checkout?product_id=${productId}`);
+      router.push(`/product-checkout?product_id=${productId}`);
     } else {
-      router.push("/checkout");
+      router.push("/product-checkout");
     }
   };
 
