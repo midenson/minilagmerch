@@ -15,10 +15,7 @@ const supabase = createClient(
 
 // --- Reusable Promo Card Component ---
 const PromoCard = ({ title, description, image, bgText, onClick }: any) => (
-  <div
-    onClick={onClick}
-    className="mx-4 mb-6 rounded-2xl overflow-hidden cursor-pointer shadow-lg group active:scale-[0.98] transition-all"
-  >
+  <div className="mx-4 mb-6 rounded-2xl overflow-hidden cursor-pointer shadow-lg group active:scale-[0.98] transition-all">
     <div className="relative h-[320px] bg-[#FF6B00] flex items-center justify-center overflow-hidden">
       <div className="absolute bottom-4 left-0 w-full select-none opacity-90">
         <div className="text-white font-black text-[50px] leading-[0.9] uppercase italic tracking-tighter whitespace-nowrap">
@@ -239,12 +236,13 @@ const AnimeStore = () => {
               <Menu className="text-white w-7 h-7" />
               <div className="flex items-center italic">
                 <div className="w-6 h-6 bg-[#f47521] rounded-full flex-shrink-0 mr-1.5 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-black rounded-full ml-1" />
+                  {/* <div className="w-2 h-2 bg-black rounded-full ml-1" /> */}
+                  <img src={"/minilag.png"} alt="logo" width={70} height={70} />
                 </div>
                 <span className="text-white font-black text-xl tracking-tighter uppercase">
                   Minilagstore{" "}
                   <span className="font-light text-xs ml-0.5 not-italic tracking-widest opacity-80 uppercase">
-                    store
+                    merch
                   </span>
                 </span>
               </div>
@@ -271,7 +269,7 @@ const AnimeStore = () => {
         {/* HERO */}
         <section className="relative w-full bg-black aspect-[1/0.95] overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1618336753974-aae8e04506aa?q=80&w=1000&auto=format&fit=crop"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI0tvIN4Plt6ywG83HhydAYgJAyanexnr1JcrK3UxlTpKCmrPl6w7SqB64k9EgCMYl1qQRid20irq3-wEBqRbUZ245xHG3tUFDBBMjfDLvag&s=10"
             alt="Hero"
             className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
@@ -320,7 +318,7 @@ const AnimeStore = () => {
             title="Shop Fresh Finds"
             description="Keep your collection fresh with shiny, new pre-orders."
             bgText="Fresh"
-            image="https://www.freeiconspng.com/uploads/anime-girl-png-2.png"
+            image="https://img-1.kwcdn.com/thumbnail/s/bde816453c3e70cbcf43bb424c966548_dd6ebb7a5324.jpeg?imageView2/2/w/1300/q/80/format/avif"
           />
         </section>
 

@@ -514,13 +514,21 @@ const ProductCheckoutPage = () => {
               Free NIGERIAN Shipping on Orders ₦75,000+
             </p>
           </div>
-          <nav className="bg-black px-4 py-3 shadow-md">
+          <nav className="w-full bg-black px-4 py-3 shadow-md">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <Menu className="text-white w-6 h-6" />
                 <div className="flex items-center italic">
-                  <div className="w-5 h-5 bg-[#f47521] rounded-full mr-1 flex items-center justify-center">
+                  {/* <div className="w-5 h-5 bg-[#f47521] rounded-full mr-1 flex items-center justify-center">
                     <div className="w-1.5 h-1.5 bg-black rounded-full ml-1" />
+                  </div> */}
+                  <div className="w-6 h-6 rounded-full bg-[#f47521] mr-1 flex items-center justify-center">
+                    <img
+                      src={"/minilag.png"}
+                      alt="logo"
+                      width={50}
+                      height={50}
+                    />
                   </div>
                   <span className="text-white font-black text-lg tracking-tighter uppercase">
                     Minilagstore
@@ -648,6 +656,7 @@ const ProductCheckoutPage = () => {
             </div>
           </div>
         </section>
+
         {/* PRODUCT DESCRIPTION */}
         <section className="p-5 border-t border-gray-100 mb-10">
           <h4 className="font-black text-sm uppercase mb-4 tracking-widest">
@@ -660,6 +669,7 @@ const ProductCheckoutPage = () => {
           </ul>
         </section>
 
+        {/* FOOTER SECTION */}
         <footer className="bg-black text-white pt-12 pb-6 px-5">
           <div className="mb-10">
             <h3 className="font-black text-2xl uppercase italic mb-4">

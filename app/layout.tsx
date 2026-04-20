@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Minilagmerch",
   description: "Minilagmerch store, anime merchs",
+  icons: {
+    icon: '/icon.png'
+  }
 };
 
 export default function RootLayout({
