@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Menu, ShoppingCart, Search, Heart, Star, Loader2 } from "lucide-react";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
@@ -115,7 +115,7 @@ const ProductCard = ({
           e.stopPropagation();
           onClick();
         }}
-        className="w-full bg-black hover:bg-zinc-800 text-white font-black text-[11px] py-4 rounded-full uppercase tracking-tight h-auto"
+        className="w-full bg-black font-heading hover:bg-zinc-800 text-white font-black text-[11px] py-4 rounded-full uppercase tracking-tight h-auto"
       >
         Add to Cart
       </Button>
@@ -128,6 +128,7 @@ const AnimeStore = () => {
   const [items, setItems] = useState<any[]>([]);
   const [featuredItems, setFeaturedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const productRef = useRef<HTMLDivElement>(null);
 
   // Replace your existing useEffect fetch logic with this:
 
@@ -204,6 +205,10 @@ const AnimeStore = () => {
     };
   }, []);
 
+  const scrollIntoView = () => {
+    productRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const goToCheckout = (productId?: string) => {
     if (productId) {
       router.push(`/product-checkout?product_id=${productId}`);
@@ -277,8 +282,8 @@ const AnimeStore = () => {
             <h1 className="text-white text-[34px] font-black font-body leading-[0.85] uppercase italic mb-4 tracking-tighter">
               The defender <br /> who fights like <br /> an anime hero
             </h1>
-            <Button className="bg-[#f47521] hover:bg-white text-black font-black text-xs uppercase px-10 py-6 rounded-full w-fit">
-              Shop Now
+            <Button className="bg-[#f47521] hover:bg-[#f47521] hover:opacity-80 font-accent text-black font-black text-xs uppercase px-10 py-6 rounded-full w-fit">
+              <p className="text-18px">Shop Now</p>
             </Button>
           </div>
         </section>
@@ -323,7 +328,10 @@ const AnimeStore = () => {
         </section>
 
         {/* MAIN FEED (REAL DATA) */}
-        <section className="bg-white px-5 pt-4 border-t border-gray-100">
+        <section
+          className="bg-white px-5 pt-4 border-t border-gray-100"
+          ref={productRef}
+        >
           <h2 className="text-black text-[28px] font-black uppercase italic tracking-tighter mb-6">
             What's New in Anime
           </h2>
