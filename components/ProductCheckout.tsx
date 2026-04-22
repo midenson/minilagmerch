@@ -286,7 +286,7 @@ const ProductCheckoutPage = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#141519] text-white">
+      <div className="flex h-screen w-full items-center justify-center bg-[#141519] text-white">
         <Loader2 className="w-10 h-10 animate-spin text-[#f47521]" />
       </div>
     );
@@ -508,9 +508,9 @@ const ProductCheckoutPage = () => {
         </Dialog>
 
         {/* HEADER */}
-        <div className="fixed top-0 w-full z-50">
+        <div className="fixed top-0 w-full max-w-[430px] z-50">
           <div className="bg-[#141519] text-white py-[8px] text-center border-b border-white/10">
-            <p className="text-[10px] font-bold tracking-tight uppercase">
+            <p className="text-[17px] font-accent font-bold tracking-tight uppercase">
               Free NIGERIAN Shipping on Orders ₦75,000+
             </p>
           </div>

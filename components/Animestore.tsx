@@ -214,7 +214,7 @@ const AnimeStore = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#141519] text-white">
+      <div className="flex h-screen w-full items-center justify-center bg-[#141519] text-white">
         <Loader2 className="w-10 h-10 animate-spin text-[#f47521]" />
       </div>
     );
@@ -225,7 +225,7 @@ const AnimeStore = () => {
       <div className="w-full max-w-[100vw] sm:max-w-[430px] bg-white min-h-screen shadow-2xl flex flex-col overflow-x-hidden relative">
         {/* TOP NAV */}
         <div className="bg-[#141519] text-white py-[10px] text-center border-b border-white/10">
-          <p className="text-[11px] font-bold tracking-tight uppercase">
+          <p className="text-[17px] font-bold tracking-tight uppercase font-accent">
             Free NIGERIAN Shipping on Orders ₦75,000+
           </p>
         </div>
@@ -274,10 +274,10 @@ const AnimeStore = () => {
             className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
           <div className="relative z-20 p-6 h-full flex flex-col">
-            <h1 className="text-white text-[34px] font-black leading-[0.85] uppercase italic mb-4 tracking-tighter">
+            <h1 className="text-white text-[34px] font-black font-body leading-[0.85] uppercase italic mb-4 tracking-tighter">
               The defender <br /> who fights like <br /> an anime hero
             </h1>
-            <Button className="bg-[#f47521] hover:bg-white text-black font-black text-xs uppercase px-8 py-5 rounded-full w-fit">
+            <Button className="bg-[#f47521] hover:bg-white text-black font-black text-xs uppercase px-10 py-6 rounded-full w-fit">
               Shop Now
             </Button>
           </div>

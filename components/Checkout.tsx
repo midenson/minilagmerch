@@ -39,7 +39,7 @@ export default function Checkout() {
 
   if (!productId) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#141519] text-white">
+      <div className="flex h-screen w-full items-center justify-center bg-[#141519] text-white">
         <p className="font-bold uppercase tracking-widest text-red-500">
           Invalid Product
         </p>
